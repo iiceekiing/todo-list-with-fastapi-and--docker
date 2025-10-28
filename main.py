@@ -38,7 +38,7 @@ class Database:
         # two tables
         self._users: Dict[int,UserInDb] = {}
         self._task:Dict[int, List[TaskinDb]]= {}
-        self.id_task= 1
+        self.task_id= 1
         self.user_id = 1
     def add_task(self, user_id:int, task:TaskinDb):
 
@@ -46,8 +46,8 @@ class Database:
     
     def get_tasks(self):
         return self._task
-    def increment_id_task(self):
-        self.id_task+= 1
+    def increment_task_id(self):
+        self.task_id+= 1
     def increment_id_user(self):
         self.user_id += 1
 
@@ -76,15 +76,33 @@ class Database:
         
 db_instance = Database()
 
-# Endpoints
+# Endpoints Routes
 
 @app.get("/")
 def index():
     return{
-        "message": "Todo App"
+        "message": "Todo App Built With FastAPI"
     }
 
+
 @app.post("/tasks", status_code=status.HTTP_201_CREATED)
+def create_task(task: TaskCreate, user_id: int):
+    if not task.title or not task.description:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All fields are required"
+        )
+    user_id = db_instance.check_user(user_id)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail: "User not found"
+        )
+        return "your id not found, please create account to be able to perform action"
+    
+    
+    
+    @app.post("/tasks", status_code=status.HTTP_201_CREATED)
 def create_task(task: TaskCreate, user_id: int):
     if not task.title or not task.description:
         raise HTTPException(
@@ -97,17 +115,17 @@ def create_task(task: TaskCreate, user_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User does not exist"
         )
-    
-
+        
     new_task = TaskinDb(
-        title=task.title,
-        description= task.description,
-        id =db_instance.id_task,
-        created_at= datetime.utcnow(),
-        updated_at=datetime.utcnow(),
-        is_completed=False
+        title = task.title,
+        description = task.description,
+        id = db_instance.task_id,
+        created_at = datetime.utcnow(),
+        updated_at = datetime.utcnow(),
+        is_completed= = False
+        
     )
-    db_instance.increment_id_task()
+    db_instance.increment_task_id()
     db_instance.add_task(user_id=user_id, task=new_task)
 
     return {
@@ -115,6 +133,10 @@ def create_task(task: TaskCreate, user_id: int):
         "data": new_task,
         "message": "Task created successfully"
     }
+    
+    
+
+
 
 @app.get("/tasks")
 def get_user_tasks(id:int ):
