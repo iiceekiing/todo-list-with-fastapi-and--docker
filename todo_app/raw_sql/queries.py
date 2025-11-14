@@ -1,0 +1,43 @@
+CREATE_USERS_TABLE = """
+CREATE TABLE IF NOT EXISTS users(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+"""
+
+CREATE_USER = """
+INSERT INTO users(username, email, password)
+VALUES (%s, %s, %s);
+"""
+
+UPDATE_USER = """
+UPDATE users SET username=%s, email=%s, password=%s WHERE id=%s;
+"""
+
+DELETE_USER = """
+DELETE FROM users WHERE id=%s;
+"""
+
+CREATE_TODOS_TABLE = """
+CREATE TABLE IF NOT EXISTS todos(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) UNIQUE NOT NULL,
+    user_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+"""
+
+CREATE_TODO = """
+INSERT INTO todos(title, user_id)
+VALUES (%s, %s);
+"""
+
+UPDATE_TODO = """
+UPDATE todos SET title=%s WHERE id=%s;
+"""
